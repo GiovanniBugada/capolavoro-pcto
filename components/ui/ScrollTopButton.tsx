@@ -79,7 +79,7 @@ export default function ScrollTopButton() {
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.94 }}
-          className="fixed bottom-24 right-6 md:right-8 z-[85] w-11 h-11 flex items-center justify-center border border-amber/60 bg-amber/10 backdrop-blur-sm text-amber hover:bg-amber hover:text-ink transition-colors rounded-full font-mono text-sm"
+          className="hidden md:flex fixed bottom-24 right-6 md:right-8 z-[85] w-11 h-11 items-center justify-center border border-amber/60 bg-amber/10 backdrop-blur-sm text-amber hover:bg-amber hover:text-ink transition-colors rounded-full font-mono text-sm"
         >
           ↑
         </motion.button>

@@ -73,7 +73,7 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={ready ? { opacity: 1 } : { opacity: 0 }}
         transition={{ delay: 0.2, duration: 0.8 }}
-        className="absolute top-6 md:top-8 left-6 md:left-12 z-20 flex items-baseline gap-4"
+        className="hidden md:flex absolute top-6 md:top-8 left-6 md:left-12 z-20 items-baseline gap-4"
       >
         <span className="font-mono uppercase tracking-widest-mono text-[10px] text-amber">01 / 11</span>
         <span className="h-px w-12 bg-amber/40" />
@@ -95,7 +95,8 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.05, ease: ease.out }}
             className="font-mono uppercase tracking-widest-mono text-[11px] text-ink/55 mb-8"
           >
-            CAPOLAVORO · PCTO · ESAME DI STATO 2025–2026
+            <span className="hidden sm:inline">CAPOLAVORO · PCTO · ESAME DI STATO 2025–2026</span>
+            <span className="sm:hidden">CAPOLAVORO PCTO · 2025–2026</span>
           </motion.p>
 
           <h1

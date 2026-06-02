@@ -91,7 +91,10 @@ export default function Skills() {
           className="flex items-baseline gap-3 mb-8"
         >
           <span className="font-mono uppercase tracking-widest-mono text-[10px] text-amber/90">§05</span>
-          <span className="font-mono uppercase tracking-widest-mono text-[10px] text-cream/60">Sintesi — cosa porto via</span>
+          <span className="font-mono uppercase tracking-widest-mono text-[10px] text-cream/60">
+            <span className="hidden sm:inline">Sintesi — cosa porto via</span>
+            <span className="sm:hidden">Sintesi</span>
+          </span>
         </motion.div>
 
         <h2

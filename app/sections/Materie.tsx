@@ -89,7 +89,10 @@ export default function Materie() {
           className="flex items-baseline gap-3 mb-8"
         >
           <span className="font-mono uppercase tracking-widest-mono text-[10px] text-amber/90">§04</span>
-          <span className="font-mono uppercase tracking-widest-mono text-[10px] text-cream/60">Il ponte — PCTO ↔ Materie del 5° anno</span>
+          <span className="font-mono uppercase tracking-widest-mono text-[10px] text-cream/60">
+            <span className="hidden sm:inline">Il ponte — PCTO ↔ Materie del 5° anno</span>
+            <span className="sm:hidden">Il ponte</span>
+          </span>
         </motion.div>
 
         <h2
@@ -128,7 +131,7 @@ export default function Materie() {
         </motion.p>
 
         <div className="overflow-x-auto -mx-6 px-6">
-          <table className="w-full min-w-[800px] border-collapse">
+          <table className="w-full min-w-[680px] border-collapse">
             <thead>
               <motion.tr
                 initial={{ opacity: 0, y: 10 }}
