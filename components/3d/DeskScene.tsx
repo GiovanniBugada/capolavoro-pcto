@@ -1,13 +1,24 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 import { ease } from '@/lib/animations';
 
 /**
  * Isometric SVG of a geometra's desk: planimetria, square, ruler, pencil,
- * compass, mug. Each piece slides into place from outside the frame.
+ * compass, mug. Each piece slides into place from outside the frame when the
+ * surrounding SVG enters the viewport.
+ *
+ * NOTE: we keep a single useInView at the svg root and drive every item
+ * imperatively via `animate=ready ? final : initial`. This avoids a known
+ * framer-motion+IntersectionObserver flake where staggered `whileInView`
+ * children would sometimes get stuck at their initial state after a fast
+ * scrollIntoView/anchor navigation.
  */
 export default function DeskScene({ className = '' }: { className?: string }) {
+  const ref = useRef<SVGSVGElement>(null);
+  const inView = useInView(ref, { amount: 0.15, once: true });
+
   const Item = ({
     delay,
     from,
@@ -19,8 +30,7 @@ export default function DeskScene({ className = '' }: { className?: string }) {
   }) => (
     <motion.g
       initial={{ x: from.x, y: from.y, rotate: from.rot ?? 0, opacity: 0 }}
-      whileInView={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
-      viewport={{ once: true, amount: 0.4 }}
+      animate={inView ? { x: 0, y: 0, rotate: 0, opacity: 1 } : undefined}
       transition={{ duration: 1.0, delay, ease: ease.out }}
     >
       {children}
@@ -29,6 +39,7 @@ export default function DeskScene({ className = '' }: { className?: string }) {
 
   return (
     <svg
+      ref={ref}
       viewBox="0 0 800 600"
       className={className}
       style={{ width: '100%', height: '100%' }}
@@ -36,8 +47,8 @@ export default function DeskScene({ className = '' }: { className?: string }) {
     >
       {/* DESK TOP */}
       <Item delay={0.0} from={{ x: 0, y: 80 }}>
-        <polygon points="100,260 700,260 760,500 40,500" fill="#1c1c1f" />
-        <polygon points="100,260 700,260 760,500 40,500" fill="none" stroke="#3a3a40" strokeWidth="1" />
+        <polygon points="100,260 700,260 760,500 40,500" fill="#2a2a30" />
+        <polygon points="100,260 700,260 760,500 40,500" fill="none" stroke="#4a4a55" strokeWidth="1" />
         {/* wood grain hint */}
         <line x1="120" y1="320" x2="680" y2="320" stroke="#2a2a2e" strokeWidth="1" />
         <line x1="120" y1="380" x2="680" y2="380" stroke="#2a2a2e" strokeWidth="1" />
@@ -145,11 +156,11 @@ export default function DeskScene({ className = '' }: { className?: string }) {
       <Item delay={0.75} from={{ x: 250, y: -150 }}>
         <g transform="translate(660, 380)">
           <ellipse cx="0" cy="0" rx="32" ry="10" fill="#0a0a0a" />
-          <path d="M -32,0 L -32,60 Q -32,72 0,72 Q 32,72 32,60 L 32,0" fill="#1c1c1f" stroke="#3a3a40" strokeWidth="1" />
-          <ellipse cx="0" cy="0" rx="32" ry="10" fill="none" stroke="#3a3a40" strokeWidth="1" />
+          <path d="M -32,0 L -32,60 Q -32,72 0,72 Q 32,72 32,60 L 32,0" fill="#2a2a30" stroke="#4a4a55" strokeWidth="1" />
+          <ellipse cx="0" cy="0" rx="32" ry="10" fill="none" stroke="#4a4a55" strokeWidth="1" />
           <ellipse cx="0" cy="-2" rx="22" ry="6" fill="#3a1f0a" />
           {/* handle */}
-          <path d="M 32,15 Q 50,15 50,35 Q 50,55 32,55" fill="none" stroke="#3a3a40" strokeWidth="2" />
+          <path d="M 32,15 Q 50,15 50,35 Q 50,55 32,55" fill="none" stroke="#4a4a55" strokeWidth="2" />
           {/* steam */}
           <motion.g
             animate={{ opacity: [0.3, 0.7, 0.3], y: [0, -8, 0] }}

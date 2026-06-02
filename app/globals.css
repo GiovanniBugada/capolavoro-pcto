@@ -7,7 +7,14 @@
     --font-inter: 'Inter', sans-serif;
     --font-instrument: 'Instrument Serif', serif;
     --font-mono: 'JetBrains Mono', monospace;
+    --theme-brand: #0a0a0a;
+    --theme-brand-soft: rgba(10, 10, 10, 0.5);
     color-scheme: light;
+  }
+
+  html[data-theme='dark'] {
+    --theme-brand: #fafaf7;
+    --theme-brand-soft: rgba(250, 250, 247, 0.55);
   }
 
   html {
@@ -33,21 +40,19 @@
   }
 
   .font-mono-eyebrow {
-    @apply font-mono uppercase tracking-widest-mono text-[11px] text-muted;
+    @apply font-mono uppercase tracking-widest-mono text-[11px];
+    color: var(--theme-brand-soft);
   }
 
-  /* hide scrollbar but keep functionality */
   html { scrollbar-width: none; }
   html::-webkit-scrollbar { display: none; }
 
-  /* focus styles */
   *:focus-visible {
     outline: 2px solid #f59e0b;
     outline-offset: 4px;
     border-radius: 2px;
   }
 
-  /* reduced motion: turn off heavy stuff but keep the site usable */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.001ms !important;
@@ -61,11 +66,16 @@
 
 @layer components {
   .section-pad {
-    padding: 6vh 8vw;
+    padding: 5vh 8vw;
   }
 
   .hairline {
     background: linear-gradient(90deg, transparent, #d4d4d8 20%, #d4d4d8 80%, transparent);
+    height: 1px;
+  }
+
+  .hairline-dark {
+    background: linear-gradient(90deg, transparent, rgba(250, 250, 247, 0.18) 20%, rgba(250, 250, 247, 0.18) 80%, transparent);
     height: 1px;
   }
 
@@ -74,19 +84,79 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.04;
+    opacity: 0.05;
     mix-blend-mode: multiply;
     background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   }
 
-  .mask-reveal {
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
-    mask-image: linear-gradient(180deg, transparent 0%, #000 30%, #000 70%, transparent 100%);
+  .theme-brand {
+    color: var(--theme-brand);
+  }
+  .theme-brand-soft {
+    color: var(--theme-brand-soft);
+  }
+
+  /*
+   * Overlay UI that needs to stay readable on any background
+   * (dark, light, dynamic, half-and-half). mix-blend-difference
+   * inverts the text against whatever pixels are behind it.
+   */
+  .overlay-invert {
+    color: #fafaf7;
+    mix-blend-mode: difference;
+  }
+
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  /* Section divider: thin amber line + dot, sits between sections */
+  .section-divider {
+    position: relative;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(245,158,11,0.3) 50%, transparent);
+  }
+  .section-divider::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #f59e0b;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 12px rgba(245,158,11,0.6);
   }
 }
 
 @layer utilities {
-  .text-balance { text-wrap: balance; }
-  .text-pretty { text-wrap: pretty; }
   .will-change-transform { will-change: transform; }
+  .text-shadow-soft { text-shadow: 0 2px 24px rgba(0,0,0,0.18); }
+
+  /* Animated dotted underline used on subtle CTAs */
+  .underline-anim {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .underline-anim:hover {
+    background-size: 100% 1px;
+  }
+
+  /* Shimmer effect for progress bars */
+  @keyframes shimmer {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(220%); }
+  }
+  .shimmer-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+    transform: translateX(-120%);
+    animation: shimmer 2.4s ease-in-out infinite;
+    pointer-events: none;
+  }
 }

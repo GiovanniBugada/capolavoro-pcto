@@ -1,6 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 import { ease } from '@/lib/animations';
 
 const CARDS = [
@@ -11,6 +12,7 @@ const CARDS = [
     bg: '#0a0a0a',
     fg: '#fafaf7',
     accent: '#f59e0b',
+    num: '01',
   },
   {
     eyebrow: 'SISTEMI E RETI',
@@ -19,6 +21,7 @@ const CARDS = [
     bg: '#3b82f6',
     fg: '#fafaf7',
     accent: '#fafaf7',
+    num: '02',
   },
   {
     eyebrow: 'GPOI',
@@ -27,29 +30,51 @@ const CARDS = [
     bg: '#f59e0b',
     fg: '#0a0a0a',
     accent: '#0a0a0a',
+    num: '03',
   },
 ] as const;
 
 export default function Verticali() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
+  const wmY = useTransform(scrollYProgress, [0, 1], ['8%', '-22%']);
+  const wmScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+
   return (
     <section
+      ref={ref}
       data-slide
+      data-section-theme="light"
       id="verticali"
-      className="relative min-h-screen w-full bg-cream py-24 md:py-32 px-6 md:px-12"
+      className="relative w-full bg-cream py-14 md:py-20 px-6 md:px-12 overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto">
-        <motion.p
+      <motion.span
+        aria-hidden
+        style={{ fontSize: 'clamp(18rem, 42vw, 46rem)', opacity: 0.022, bottom: '-10%', left: '-6%', letterSpacing: '-0.06em', y: wmY, scale: wmScale }}
+        className="absolute pointer-events-none select-none font-sans font-black leading-none text-ink will-change-transform"
+      >
+        07
+      </motion.span>
+
+      <div className="relative max-w-[1400px] mx-auto">
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="font-mono-eyebrow mb-6"
+          className="flex items-baseline gap-6 mb-10"
         >
-          §04 · TRE VERTICALI TECNICHE
-        </motion.p>
+          <span className="font-mono uppercase tracking-widest-mono text-[10px] text-amber">
+            §04 · TRE VERTICALI
+          </span>
+          <span className="h-px flex-1 max-w-[120px] bg-line" />
+          <span className="font-mono uppercase tracking-widest-mono text-[10px] text-muted">
+            COLONNE TECNICHE
+          </span>
+        </motion.div>
 
         <h2
-          className="font-sans font-black tracking-tightest leading-[0.92] text-ink mb-16 max-w-5xl"
+          className="font-sans font-black tracking-tightest leading-[0.92] text-ink mb-10 max-w-5xl"
           style={{ fontSize: 'clamp(2rem, 5.4vw, 5.6rem)' }}
         >
           <span className="block overflow-hidden">
@@ -80,32 +105,40 @@ export default function Verticali() {
           {CARDS.map((c, i) => (
             <motion.div
               key={c.eyebrow}
-              initial={{ opacity: 0, scale: 0.95, y: 30 }}
+              initial={{ opacity: 0, scale: 0.96, y: 24 }}
               whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
+              viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.8, delay: i * 0.12, ease: ease.spring }}
               whileHover={{ y: -8, transition: { duration: 0.4, ease: ease.out } }}
               style={{ background: c.bg, color: c.fg }}
-              className="p-8 md:p-10 flex flex-col h-full min-h-[420px] md:min-h-[480px]"
+              className="relative p-7 md:p-9 flex flex-col h-full min-h-[440px] overflow-hidden"
               data-cursor="hover"
             >
-              <div className="flex items-center justify-between mb-8">
-                <span className="font-mono-eyebrow" style={{ color: c.accent, opacity: 0.85 }}>
+              <div className="flex items-baseline justify-between mb-8">
+                <span className="font-mono uppercase tracking-widest-mono text-[10px]" style={{ color: c.accent, opacity: 0.85 }}>
                   {c.eyebrow}
                 </span>
-                <span className="font-mono text-[11px] tracking-widest-mono opacity-50">
-                  {String(i + 1).padStart(2, '0')} / 03
+                <span className="font-mono uppercase tracking-widest-mono text-[10px] opacity-50">
+                  {c.num} / 03
                 </span>
               </div>
 
               <h3
-                className="font-sans font-bold tracking-tighter leading-[0.95] mb-auto"
-                style={{ fontSize: 'clamp(1.6rem, 2.6vw, 2.4rem)' }}
+                className="font-sans font-bold tracking-tightest leading-[0.95] mb-auto"
+                style={{ fontSize: 'clamp(1.5rem, 2.4vw, 2.2rem)' }}
               >
                 {c.title}
               </h3>
 
-              <p className="text-[14px] md:text-[15px] leading-relaxed opacity-85 mt-12">{c.body}</p>
+              <p className="text-[13px] md:text-[14px] leading-relaxed opacity-85 mt-10">{c.body}</p>
+
+              <span
+                className="absolute -bottom-10 -right-4 font-sans font-black leading-none select-none pointer-events-none opacity-[0.08]"
+                style={{ fontSize: 'clamp(8rem, 16vw, 14rem)', color: c.fg }}
+                aria-hidden
+              >
+                {c.num}
+              </span>
             </motion.div>
           ))}
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -84,14 +84,14 @@ function Mountains({ mouseRef }: { mouseRef: React.MutableRefObject<{ x: number;
       <group ref={layer1} position={[0, 0, -5]}>
         {[-9, -5, -1, 3, 7, 11].map((x, i) => (
           <mesh key={i} geometry={tri(4 + (i % 3) * 0.5, 1.6 + ((i * 0.3) % 1.2), x)}>
-            <meshBasicMaterial color="#1a1a1d" />
+            <meshBasicMaterial color="#2e2e38" />
           </mesh>
         ))}
       </group>
       <group ref={layer2} position={[0, -0.1, -3.5]}>
         {[-7, -3, 1, 5, 9].map((x, i) => (
           <mesh key={i} geometry={tri(5 + (i % 2) * 0.5, 2 + (i % 2) * 0.4, x)}>
-            <meshBasicMaterial color="#0e0e10" />
+            <meshBasicMaterial color="#1c1c22" />
           </mesh>
         ))}
       </group>
@@ -113,19 +113,38 @@ interface Props {
 
 export default function StarsField({ className = '', showMountains = true }: Props) {
   const mouseRef = useRef({ x: 0, y: 0 });
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     mouseRef.current.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     mouseRef.current.y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
   };
 
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const el = wrapperRef.current;
+    const dispatch = () => window.dispatchEvent(new Event('resize'));
+    const timers = [
+      window.setTimeout(dispatch, 0),
+      window.setTimeout(dispatch, 80),
+      window.setTimeout(dispatch, 300),
+      window.setTimeout(dispatch, 800),
+    ];
+    const ro = new ResizeObserver(dispatch);
+    ro.observe(el);
+    return () => {
+      timers.forEach((t) => window.clearTimeout(t));
+      ro.disconnect();
+    };
+  }, []);
+
   return (
-    <div onMouseMove={handleMove} className={className} style={{ width: '100%', height: '100%' }}>
+    <div ref={wrapperRef} onMouseMove={handleMove} className={className} style={{ width: '100%', height: '100%' }}>
       <Canvas
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: false }}
         camera={{ position: [0, 0, 0], fov: 70 }}
-        style={{ background: '#0a0a0a' }}
+        style={{ background: '#0a0a0a', width: '100%', height: '100%' }}
       >
         <Suspense fallback={null}>
           <Stars />

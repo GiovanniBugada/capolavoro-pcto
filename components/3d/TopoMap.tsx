@@ -55,7 +55,7 @@ export default function TopoMap({ className = '' }: { className?: string }) {
               strokeOpacity={0.18 + (i / 7) * 0.18}
               initial={{ pathLength: 0 }}
               whileInView={{ pathLength: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 1.6, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
             />
           );
@@ -92,7 +92,7 @@ export default function TopoMap({ className = '' }: { className?: string }) {
               y2={p2.y}
               initial={{ pathLength: 0, opacity: 0 }}
               whileInView={{ pathLength: 1, opacity: 0.7 }}
-              viewport={{ once: true, amount: 0.3 }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{ duration: 0.9, delay: 1.4 + i * 0.18, ease: [0.22, 1, 0.36, 1] }}
               strokeDasharray="4 4"
             />
@@ -107,7 +107,7 @@ export default function TopoMap({ className = '' }: { className?: string }) {
             key={p.id}
             initial={{ scale: 0, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.15 }}
             transition={{ duration: 0.5, delay: 0.8 + i * 0.15, ease: [0.34, 1.56, 0.64, 1] }}
           >
             <circle cx={p.x} cy={p.y} r="14" fill="#fafaf7" stroke="#0a0a0a" strokeWidth="1.5" />

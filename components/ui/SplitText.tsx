@@ -53,7 +53,7 @@ export default function SplitText({
       variants={parent}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: triggerOnce, amount: 0.4 }}
+      viewport={{ once: triggerOnce, amount: 0.15 }}
       className={className}
       aria-label={text}
     >

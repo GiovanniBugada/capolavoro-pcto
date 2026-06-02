@@ -1,18 +1,14 @@
 'use client';
 
-import { Suspense, useMemo, useRef } from 'react';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Line, OrthographicCamera } from '@react-three/drei';
 import * as THREE from 'three';
 
-const COLOR_PRIMARY = '#fafaf7';
-const COLOR_ACCENT = '#f59e0b';
-const COLOR_DIM = '#8a8a92';
-
 interface EdgeDef {
   a: [number, number, number];
   b: [number, number, number];
-  color: string;
+  kind: 'primary' | 'accent' | 'dim';
   width: number;
   delay: number;
 }
@@ -42,7 +38,7 @@ function buildEdges(): EdgeDef[] {
       edges.push({
         a: [A[0], y, A[1]],
         b: [B[0], y, B[1]],
-        color: f === 0 || f === FLOORS ? COLOR_PRIMARY : COLOR_DIM,
+        kind: f === 0 || f === FLOORS ? 'primary' : 'dim',
         width: 1.3,
         delay: (y / TOTAL_H) * 0.45,
       });
@@ -54,7 +50,7 @@ function buildEdges(): EdgeDef[] {
     edges.push({
       a: [x, 0, z],
       b: [x, TOTAL_H, z],
-      color: COLOR_PRIMARY,
+      kind: 'primary',
       width: 1.5,
       delay: 0.08,
     });
@@ -82,10 +78,10 @@ function buildEdges(): EdgeDef[] {
         const B: [number, number, number] = [x + WIN_W / 2, yBase, z];
         const C: [number, number, number] = [x + WIN_W / 2, yBase + WIN_H, z];
         const D2: [number, number, number] = [x - WIN_W / 2, yBase + WIN_H, z];
-        edges.push({ a: A, b: B, color: COLOR_ACCENT, width: 1.1, delay });
-        edges.push({ a: B, b: C, color: COLOR_ACCENT, width: 1.1, delay });
-        edges.push({ a: C, b: D2, color: COLOR_ACCENT, width: 1.1, delay });
-        edges.push({ a: D2, b: A, color: COLOR_ACCENT, width: 1.1, delay });
+        edges.push({ a: A, b: B, kind: 'accent', width: 1.1, delay });
+        edges.push({ a: B, b: C, kind: 'accent', width: 1.1, delay });
+        edges.push({ a: C, b: D2, kind: 'accent', width: 1.1, delay });
+        edges.push({ a: D2, b: A, kind: 'accent', width: 1.1, delay });
       });
     }
     for (let i = 0; i < 2; i++) {
@@ -95,10 +91,10 @@ function buildEdges(): EdgeDef[] {
         const B: [number, number, number] = [x, yBase, sideZ + WIN_W / 2];
         const C: [number, number, number] = [x, yBase + WIN_H, sideZ + WIN_W / 2];
         const D2: [number, number, number] = [x, yBase + WIN_H, sideZ - WIN_W / 2];
-        edges.push({ a: A, b: B, color: COLOR_ACCENT, width: 1.1, delay });
-        edges.push({ a: B, b: C, color: COLOR_ACCENT, width: 1.1, delay });
-        edges.push({ a: C, b: D2, color: COLOR_ACCENT, width: 1.1, delay });
-        edges.push({ a: D2, b: A, color: COLOR_ACCENT, width: 1.1, delay });
+        edges.push({ a: A, b: B, kind: 'accent', width: 1.1, delay });
+        edges.push({ a: B, b: C, kind: 'accent', width: 1.1, delay });
+        edges.push({ a: C, b: D2, kind: 'accent', width: 1.1, delay });
+        edges.push({ a: D2, b: A, kind: 'accent', width: 1.1, delay });
       });
     }
   }
@@ -107,14 +103,14 @@ function buildEdges(): EdgeDef[] {
   edges.push({
     a: [-W / 2, TOTAL_H, -D / 2],
     b: [W / 2, TOTAL_H, D / 2],
-    color: COLOR_DIM,
+    kind: 'dim',
     width: 1,
     delay: 0.62,
   });
   edges.push({
     a: [W / 2, TOTAL_H, -D / 2],
     b: [-W / 2, TOTAL_H, D / 2],
-    color: COLOR_DIM,
+    kind: 'dim',
     width: 1,
     delay: 0.64,
   });
@@ -124,20 +120,38 @@ function buildEdges(): EdgeDef[] {
   edges.push({
     a: [-G, 0, 0],
     b: [G, 0, 0],
-    color: COLOR_DIM,
+    kind: 'dim',
     width: 0.7,
     delay: 0,
   });
   edges.push({
     a: [0, 0, -G],
     b: [0, 0, G],
-    color: COLOR_DIM,
+    kind: 'dim',
     width: 0.7,
     delay: 0,
   });
 
   return edges;
 }
+
+interface Palette {
+  primary: string;
+  accent: string;
+  dim: string;
+}
+
+const PALETTE_DARK: Palette = {
+  primary: '#fafaf7',
+  accent: '#f59e0b',
+  dim: '#8a8a92',
+};
+
+const PALETTE_LIGHT: Palette = {
+  primary: '#0a0a0a',
+  accent: '#f59e0b',
+  dim: '#71717a',
+};
 
 /**
  * One edge that animates from a→head over time, controlled by its own
@@ -146,12 +160,14 @@ function buildEdges(): EdgeDef[] {
 function AnimatedEdge({
   a,
   b,
-  color,
+  kind,
   width,
   delay,
   startRef,
   revealMs,
-}: EdgeDef & { startRef: React.MutableRefObject<number | null>; revealMs: number }) {
+  palette,
+}: EdgeDef & { startRef: React.MutableRefObject<number | null>; revealMs: number; palette: Palette }) {
+  const color = palette[kind];
   const ref = useRef<{ setPoints: (pts: THREE.Vector3[]) => void }>(null);
   const A = useMemo(() => new THREE.Vector3(...a), [a]);
   const B = useMemo(() => new THREE.Vector3(...b), [b]);
@@ -192,9 +208,11 @@ function AnimatedEdge({
 function BuildingMesh({
   revealMs,
   mouseRef,
+  palette,
 }: {
   revealMs: number;
   mouseRef: React.MutableRefObject<{ x: number; y: number }>;
+  palette: Palette;
 }) {
   const group = useRef<THREE.Group>(null!);
   const startRef = useRef<number | null>(null);
@@ -212,7 +230,7 @@ function BuildingMesh({
   return (
     <group ref={group} position={[0, -1.4, 0]}>
       {edges.map((e, i) => (
-        <AnimatedEdge key={i} {...e} startRef={startRef} revealMs={revealMs} />
+        <AnimatedEdge key={i} {...e} startRef={startRef} revealMs={revealMs} palette={palette} />
       ))}
     </group>
   );
@@ -222,10 +240,13 @@ interface Props {
   revealMs?: number;
   interactive?: boolean;
   className?: string;
+  theme?: 'light' | 'dark';
 }
 
-export default function BuildingWireframe({ revealMs = 3000, interactive = true, className }: Props) {
+export default function BuildingWireframe({ revealMs = 3000, interactive = true, className, theme = 'dark' }: Props) {
   const mouseRef = useRef({ x: 0, y: 0 });
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const palette = theme === 'light' ? PALETTE_LIGHT : PALETTE_DARK;
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!interactive) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -233,13 +254,34 @@ export default function BuildingWireframe({ revealMs = 3000, interactive = true,
     mouseRef.current.y = -(((e.clientY - rect.top) / rect.height) * 2 - 1);
   };
 
+  // R3F sometimes misses the initial size when an ancestor uses CSS
+  // transforms (parallax scale). We schedule a few resize dispatches so
+  // the canvas drawable buffer catches up to its real container box.
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const el = wrapperRef.current;
+    const dispatch = () => window.dispatchEvent(new Event('resize'));
+    const timers = [
+      window.setTimeout(dispatch, 0),
+      window.setTimeout(dispatch, 80),
+      window.setTimeout(dispatch, 300),
+      window.setTimeout(dispatch, 800),
+    ];
+    const ro = new ResizeObserver(dispatch);
+    ro.observe(el);
+    return () => {
+      timers.forEach((t) => window.clearTimeout(t));
+      ro.disconnect();
+    };
+  }, []);
+
   return (
-    <div onMouseMove={handleMove} className={className} style={{ width: '100%', height: '100%' }}>
-      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}>
+    <div ref={wrapperRef} onMouseMove={handleMove} className={className} style={{ width: '100%', height: '100%' }}>
+      <Canvas dpr={[1, 1.5]} gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }} style={{ width: '100%', height: '100%' }}>
         <OrthographicCamera makeDefault position={[3.5, 2.2, 4.5]} zoom={110} />
         <ambientLight intensity={0.7} />
         <Suspense fallback={null}>
-          <BuildingMesh revealMs={revealMs} mouseRef={mouseRef} />
+          <BuildingMesh revealMs={revealMs} mouseRef={mouseRef} palette={palette} />
         </Suspense>
       </Canvas>
     </div>

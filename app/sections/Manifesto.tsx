@@ -1,92 +1,88 @@
 'use client';
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 
-const WORDS = [
-  'Il', 'mio', 'PCTO', 'non', 'doveva', 'andare', 'così.', 'È', 'andato',
+// One single phrase, split for staggered reveal.
+const WORDS: Array<{ w: string; highlight?: boolean }> = [
+  { w: 'Il' }, { w: 'mio' }, { w: 'PCTO' },
+  { w: 'non' }, { w: 'doveva' }, { w: 'andare' }, { w: 'così.' },
+  { w: 'È' }, { w: 'andato' }, { w: 'meglio.', highlight: true },
 ];
+
+// Visual break-points: insert a line break after these indices (0-based).
+const BREAK_AFTER = [2, 6];
 
 export default function Manifesto() {
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start'],
-  });
-
-  const bgColor = useTransform(
-    scrollYProgress,
-    [0, 0.3, 0.7, 1],
-    ['#fafaf7', '#fafaf7', '#0a0a0a', '#0a0a0a']
-  );
-  const fgColor = useTransform(
-    scrollYProgress,
-    [0, 0.3, 0.7, 1],
-    ['#0a0a0a', '#0a0a0a', '#fafaf7', '#fafaf7']
-  );
+  // amount:0.1 means: as soon as 10% of the title is on screen, fire.
+  // This avoids the `whileInView` no-fire bug we saw with amount:0.35
+  // under certain scroll-restoration timings.
+  const inView = useInView(ref, { amount: 0.1, once: true });
 
   return (
-    <motion.section
+    <section
       data-slide
+      data-section-theme="dark"
       id="manifesto"
-      ref={ref}
-      style={{ backgroundColor: bgColor }}
-      className="relative min-h-[150vh] w-full"
+      className="relative w-full bg-ink text-cream overflow-hidden"
+      style={{ minHeight: '100vh' }}
     >
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-center px-6 md:px-12">
-        <motion.p
-          style={{ color: fgColor }}
-          className="font-mono-eyebrow mb-12 self-start max-w-7xl mx-auto w-full"
-        >
-          MANIFESTO · UNA FRASE
-        </motion.p>
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none opacity-[0.04]"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(to right, #fafaf7 0 1px, transparent 1px 12.5%)',
+        }}
+      />
 
-        <motion.h2
-          style={{ color: fgColor }}
-          className="font-sans font-bold tracking-tighter leading-[0.95] text-center max-w-6xl mx-auto"
-          aria-label="Il mio PCTO non doveva andare così. È andato meglio."
-        >
-          <span style={{ fontSize: 'clamp(2.6rem, 7.2vw, 7.5rem)' }} className="block">
-            {WORDS.map((w, i) => (
-              <span key={i} className="inline-block overflow-hidden align-bottom mr-[0.22em]">
+      <div className="relative min-h-screen flex flex-col px-6 md:px-12 py-16 md:py-20">
+        <div className="max-w-[1400px] mx-auto w-full mb-auto">
+          <span className="font-mono uppercase tracking-widest-mono text-[10px] text-cream/55">
+            Manifesto
+          </span>
+        </div>
+
+        <div ref={ref} className="flex-1 flex items-center justify-center max-w-[1400px] mx-auto w-full">
+          <h2
+            className="font-sans font-black tracking-tightest leading-[0.98] text-center text-cream"
+            aria-label="Il mio PCTO non doveva andare così. È andato meglio."
+            style={{ fontSize: 'clamp(2rem, 5.8vw, 5.8rem)' }}
+          >
+            {WORDS.map((wd, i) => (
+              <span key={i}>
                 <motion.span
-                  initial={{ y: '105%', opacity: 0 }}
-                  whileInView={{ y: 0, opacity: 1 }}
-                  viewport={{ once: true, amount: 0.4 }}
-                  transition={{ duration: 0.8, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                  className="inline-block"
+                  initial={{ opacity: 0, y: 36 }}
+                  animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 36 }}
+                  transition={{
+                    duration: 0.7,
+                    delay: i * 0.08,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className={
+                    wd.highlight
+                      ? 'inline-block text-amber font-serif italic font-normal mr-[0.22em]'
+                      : 'inline-block mr-[0.22em]'
+                  }
                 >
-                  {w}
+                  {wd.w}
                 </motion.span>
+                {BREAK_AFTER.includes(i) && <br />}
               </span>
             ))}
-            <span className="inline-block overflow-hidden align-bottom">
-              <motion.span
-                initial={{ y: '105%', opacity: 0 }}
-                whileInView={{ y: 0, opacity: 1 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.9, delay: WORDS.length * 0.06 + 0.15, ease: [0.34, 1.56, 0.64, 1] }}
-                className="inline-block text-amber font-serif italic font-normal"
-              >
-                meglio.
-              </motion.span>
-            </span>
-          </span>
-        </motion.h2>
+          </h2>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 1.6, duration: 0.8 }}
-          className="mt-16 flex items-center gap-3"
-        >
-          <span className="block h-px w-12 bg-amber" />
-          <motion.span style={{ color: fgColor }} className="font-mono-eyebrow">
-            CAPOLAVORO · GIOVANNI BUGADA
-          </motion.span>
-        </motion.div>
+        <div className="flex items-baseline justify-between max-w-[1400px] mx-auto w-full mt-auto text-cream/55">
+          <span className="font-mono uppercase tracking-widest-mono text-[10px]">
+            Capolavoro · Giovanni Bugada
+          </span>
+          <span className="font-mono uppercase tracking-widest-mono text-[10px]">
+            Continua →
+          </span>
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

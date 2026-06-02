@@ -98,7 +98,7 @@ export default function FloorPlanDraw({
             d={w.d}
             initial={{ pathLength: 0 }}
             whileInView={{ pathLength: 1 }}
-            viewport={{ once: true, amount: 0.4 }}
+            viewport={{ once: true, amount: 0.15 }}
             transition={{
               duration: perWall * 1.4,
               delay: i * perWall * 0.8,
@@ -113,7 +113,7 @@ export default function FloorPlanDraw({
         <motion.g
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          viewport={{ once: true, amount: 0.4 }}
+          viewport={{ once: true, amount: 0.15 }}
           transition={{ delay: drawSec, duration: 0.6 }}
           stroke="#f59e0b"
           strokeWidth="1"
@@ -166,7 +166,7 @@ export default function FloorPlanDraw({
               textAnchor="middle"
               initial={{ opacity: 0, y: l.y + 6 }}
               whileInView={{ opacity: 1, y: l.y }}
-              viewport={{ once: true, amount: 0.4 }}
+              viewport={{ once: true, amount: 0.15 }}
               transition={{
                 delay: drawSec + 0.4 + i * 0.12,
                 duration: 0.5,

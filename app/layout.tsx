@@ -2,9 +2,11 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Instrument_Serif, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import LenisProvider from '@/components/providers/LenisProvider';
+import ThemeObserver from '@/components/providers/ThemeObserver';
 import CustomCursor from '@/components/ui/CustomCursor';
 import ProgressBar from '@/components/ui/ProgressBar';
 import SlideCounter from '@/components/ui/SlideCounter';
+import ScrollTopButton from '@/components/ui/ScrollTopButton';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -58,23 +60,25 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="it" className={`${inter.variable} ${instrument.variable} ${mono.variable}`}>
       <body>
         <LenisProvider>
+          <ThemeObserver />
           <ProgressBar />
 
-          <div className="fixed top-4 left-4 md:top-6 md:left-6 z-[80] font-mono-eyebrow text-ink mix-blend-difference">
-            CAPOLAVORO_PCTO_2026
+          {/* Slide counter — top right */}
+          <div className="fixed top-5 right-6 md:top-6 md:right-8 z-[80] pointer-events-none overlay-invert">
+            <SlideCounter total={11} />
           </div>
 
-          <div className="fixed top-4 right-4 md:top-6 md:right-6 z-[80] mix-blend-difference">
-            <SlideCounter total={15} />
-          </div>
-
+          {/* Hint — bottom right, fades after 6s */}
           <div
-            className="fixed bottom-4 left-4 md:bottom-6 md:left-6 z-[80] font-mono-eyebrow text-ink mix-blend-difference pointer-events-none"
-            style={{ animation: 'navHintFade 5s 4s forwards' }}
+            className="fixed bottom-5 right-6 md:bottom-6 md:right-8 z-[80] pointer-events-none overlay-invert"
+            style={{ animation: 'navHintFade 6s 5s forwards' }}
           >
-            ← → SPAZIO PER NAVIGARE
+            <span className="font-mono uppercase tracking-widest-mono text-[10px] opacity-80">
+              SCORRI ↓
+            </span>
           </div>
 
+          <ScrollTopButton />
           <CustomCursor />
           {children}
         </LenisProvider>
